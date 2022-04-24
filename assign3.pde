@@ -30,7 +30,8 @@ int nbrSoil = 6;
 boolean right= false;
 boolean down= false;
 boolean left= false;
-int sceneY = 0;
+float sceneY = 0;
+int x,y=0;
 
 // For debug function; DO NOT edit or remove this!
 int playerHealth = 2;
@@ -105,9 +106,10 @@ void draw() {
 
 
 //scenemove
-  if (down) {
+  if (sceneY > -1600) {
+      sceneY=80-hogY;}
       pushMatrix();
-      translate(0, sceneY);}
+      translate(0, sceneY);
 
 		// Background
 		image(bg, 0, 0);
@@ -127,7 +129,9 @@ void draw() {
     for (int i=0; i<nbrSoil; i++){
       for(int m=0; m<8; m++){
         for(int n=0; n<24; n++){
-    image(imgSoil[i],m*80,160+80*n+320*i);
+          if(160+80*n+320*i<1760+80*4){
+    image(imgSoil[i],m*80,160+80*n+320*i);}
+    
   }}}
   
     //stone1-8
@@ -162,34 +166,32 @@ void draw() {
     popMatrix();
     
     //stone17-24
-    pushMatrix();
-    translate(0,80*18);
-    for(int i=0; i<8; i++){
-      int j=-i;
-      int a =80*7;
-      image(stone1,a+80*j,80*i);   
-      image(stone1,80*5+80*j,80*i);
-      image(stone2,80*5+80*j,80*i);
-      image(stone1,80*4+80*j,80*i);
-      image(stone1,80*2+80*j,80*i);
-      image(stone2,80*2+80*j,80*i);
-      image(stone1,80+80*j,80*i);
-      image(stone1,a+80*j,80+80*i);
-      image(stone2,a+80*j,80+80*i);
-      image(stone1,a+80*j,80*3+80*i);
-      image(stone1,a+80*j,80*4+80*i);
-      image(stone2,a+80*j,80*4+80*i);
-      image(stone1,a+80*j,80*6+80*i);
-      image(stone1,a+80*j,a+80*i);
-      image(stone2,a+80*j,a+80*i);}  
-    popMatrix();
+pushMatrix();
+        translate(-80*6, 160+80*16);
+        y=0;
+        x=0;
+        for (int n=0; n<5; n++) {
+          pushMatrix();
+          translate(n*80*3, 0);
+          for (int i=7; i>-1; i--) {
+            int x1, x2;
+            x1 = 80*i;
+            image(stone1, x1, y);
+            x2 = 80*(i+1);
+            image(stone1, x2, y);
+            image(stone2, x2, y);
+            y += 80;
+          }
+          y=0;
+          popMatrix();
+        }
+        popMatrix();
     
-   // Health UI   
 
-    for(int i =0; i<playerHealth; i++){   
-       image(lifeImg,lifeX+(lifeWidth+lifeSpace)*i,lifeY);} 
        
-    //groundhog move    
+      
+       
+//groundhog move    
 switch(hogState){
   case GO_RIGHT:
   if(frame<15){
@@ -214,8 +216,9 @@ switch(hogState){
     image(groundhogDown,hogX,hogY);
     hogY+=hogSpeed/15.0;
     frame++;
-    if(hogY>=80*26){hogY=80*26;}}
+    if(hogY>=80*25){hogY=80*25;}}
   if(frame==15){image(groundhogIdle,round(hogX),round(hogY));}
+
   break;
   
   case STAY:
@@ -223,9 +226,15 @@ switch(hogState){
   image(groundhogIdle,round(hogX),round(hogY));
   break;
 }
-    if (down) {popMatrix();}
-	
+    
+popMatrix();
 
+   // Health UI   
+for(int i =0; i<playerHealth; i++){   
+       image(lifeImg,lifeX+(lifeWidth+lifeSpace)*i,10);} 
+       if(playerHealth==0){
+          gameState= GAME_OVER;
+       }
 		break;
 
 		case GAME_OVER: // Gameover Screen
@@ -240,7 +249,10 @@ switch(hogState){
 			if(mousePressed){
 				gameState = GAME_RUN;
 				mousePressed = false;
-				// Remember to initialize the game here!
+          hogX=320;
+          hogY=80;
+          playerHealth=2;
+        sceneY=0;
 			}
 		}else{
 
@@ -288,10 +300,8 @@ switch(keyCode){
     if(frame==15){
       down=true; 
       frame=0;
-     
-      sceneY-=80;
       hogState=GO_DOWN;}
-      if(hogY>=80*26){hogState=STAY;}
+      if(hogY>=80*25){hogState=STAY;}
     break;
     
     //right
